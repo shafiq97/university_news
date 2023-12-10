@@ -1,9 +1,9 @@
 <?php
     session_start();
     
-    if( isset($_SESSION['user'])){
-        header("Location: profile.php");
-    }
+    // if( isset($_SESSION['user'])){
+    //     header("Location: profile.php");
+    // }
     include('connect.php');
 
 ?>
@@ -26,15 +26,14 @@
             </div>
         </a>
         <ul id="nav-bar">
-            <a href="index.php"><li>Home</li></a>
-            <a href="categories.php"><li>News</li></a>
+            <!-- <a href="index.php"><li>Home</li></a> -->
+            <a href="index.php"><li>News</li></a>
             <a href="contacts.php"><li>Contact</li></a>
             <a href="ask.php"><li>Ask Question</li></a>
             <?php 
                 if(! isset($_SESSION['user'])){
             ?>
             <a href="login.php"><li>Log In</li></a>
-            <a href="signup.php"><li id="home">Sign Up</li></a>
             <?php
                 }
                 else{

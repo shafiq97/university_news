@@ -2,31 +2,43 @@
 session_start();
 include('connect.php');
 
-// This PHP block would handle the form submission.
+// Check if the 'id' GET variable is set
+if (isset($_GET['id'])) {
+  $id = $_GET['id'];
+
+  // Fetch the news item data
+  $query = "SELECT * FROM category WHERE id = ?";
+  if ($stmt = $conn->prepare($query)) {
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $news_item = $result->fetch_assoc();
+    $stmt->close();
+  }
+}
+
 // Check if the form was submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
   // Assign variables from posted data
   $news_title = mysqli_real_escape_string($conn, $_POST['news_title']);
   $news_description = mysqli_real_escape_string($conn, $_POST['news_description']);
   $image_url = mysqli_real_escape_string($conn, $_POST['image_url']);
-  $news_tags = isset($_POST['news_tags']) ? $_POST['news_tags'] : [];
+  $id = mysqli_real_escape_string($conn, $_POST['id']); // Make sure to retrieve the id from the form
 
-  // Convert the tags array into a string to insert into the ENUM column
-  // Assuming your ENUM column can store a comma-separated list of tags
-  $tags_string = implode(",", $news_tags);
+  // SQL query to update the news item in the database
+  $query = "UPDATE category SET name = ?, description = ?, image_url = ? WHERE id = ?";
 
-  // SQL query to insert the new news into the database with tags
-  $tags_string = implode(",", $news_tags); // 'tag1,tag2'
-  $query = "INSERT INTO category (name, description, image_url, tags) VALUES ('$news_title', '$news_description', '$image_url', '$tags_string')";
-  
-  // Execute the query
-  if (mysqli_query($conn, $query)) {
-    // Redirect to news dashboard or display a success message
-    header("Location: news.php");
-    exit();
-  } else {
-    // Error handling
-    echo "Error: " . $query . "<br>" . mysqli_error($conn);
+  if ($stmt = $conn->prepare($query)) {
+    $stmt->bind_param("sssi", $news_title, $news_description, $image_url, $id);
+    if ($stmt->execute()) {
+      // Redirect to news dashboard or display a success message
+      header("Location: news.php");
+      exit();
+    } else {
+      // Error handling
+      echo "Error: " . $stmt->error;
+    }
+    $stmt->close();
   }
 }
 
@@ -77,6 +89,7 @@ mysqli_close($conn);
 </head>
 
 <body id="_3">
+  <!-- ... existing navigation ... -->
   <ul id="nav-bar">
     <!-- <a href="index.php">
       <li>Home</li>
@@ -110,32 +123,29 @@ mysqli_close($conn);
       ?>
   </ul>
   <div id="content" class="container mt-5">
-    <h2>Add News</h2>
-    <form action="add_news.php" method="post">
-      <div class="form-group">
-        <label for="news_title">Title:</label>
-        <input type="text" class="form-control" name="news_title" id="news_title" required>
-      </div>
-      <div class="form-group">
-        <label for="news_description">Description:</label>
-        <textarea class="form-control" name="news_description" id="news_description" rows="3" required></textarea>
-      </div>
-      <div class="form-group">
-        <label for="image_url">Image URL:</label>
-        <input type="text" class="form-control" name="image_url" id="image_url">
-      </div>
-      <div class="form-group">
-        <label for="news_tags">Tags:</label>
-        <select multiple class="form-control" name="news_tags[]" id="news_tags">
-          <option value="tag1">Tag 1</option>
-          <option value="tag2">Tag 2</option>
-          <!-- Add more tag options here -->
-        </select>
-      </div>
-
-      <button type="submit" class="btn btn-primary" name="submit">Add News</button>
-    </form>
+    <h2>Edit News</h2>
+    <?php if (isset($news_item)) : ?>
+      <form action="edit_news.php" method="post">
+        <input type="hidden" name="id" value="<?php echo $news_item['id']; ?>">
+        <div class="form-group">
+          <label for="news_title">Title:</label>
+          <input type="text" class="form-control" name="news_title" id="news_title" value="<?php echo $news_item['name']; ?>" required>
+        </div>
+        <div class="form-group">
+          <label for="news_description">Description:</label>
+          <textarea class="form-control" name="news_description" id="news_description" rows="3" required><?php echo $news_item['description']; ?></textarea>
+        </div>
+        <div class="form-group">
+          <label for="image_url">Image URL:</label>
+          <input type="text" class="form-control" name="image_url" id="image_url" value="<?php echo $news_item['image_url']; ?>">
+        </div>
+        <button type="submit" class="btn btn-primary" name="submit">Update News</button>
+      </form>
+    <?php else : ?>
+      <p>News item not found.</p>
+    <?php endif; ?>
   </div>
+  <!-- ... existing footer ... -->
 </body>
 
 </html>

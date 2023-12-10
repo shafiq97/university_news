@@ -645,17 +645,6 @@ a#try:hover{
     display: inline;
 }
 
-select{
-    position: absolute;
-    transform: translate(-90px, 25px);
-    color: #ddd;
-    background: #333;
-    font-size: 1.02em;
-    width: 90px;
-    height: 38px;
-    border: none;
-    line-height: 37px;
-}
 
 #ask-ta{
     display: none;

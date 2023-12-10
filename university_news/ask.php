@@ -12,9 +12,46 @@ if (!isset($_SESSION['user']))
     <title> USIM News Forum </title>
     <link type="text/css" rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <link type="text/css" rel="stylesheet" href="css/material.css">
     <link type="text/css" rel="stylesheet" href="fonts/font.css">
     <link rel="icon" href="images/icon.png">
+    <style>
+        #category-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .category-card {
+            width: 300px;
+            height: 200px;
+            margin: 10px;
+            border-radius: 10px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-content {
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Semi-transparent background */
+            color: white;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .category-content h3 {
+            margin-top: 0;
+        }
+
+        .category-content p {
+            margin-bottom: 0;
+        }
+    </style>
 </head>
 
 <body id="ask">
@@ -27,10 +64,10 @@ if (!isset($_SESSION['user']))
         </div>
     </a>
     <ul id="nav-bar">
-        <a href="index.php">
+        <!-- <a href="index.php">
             <li>Home</li>
-        </a>
-        <a href="categories.php">
+        </a> -->
+        <a href="index.php">
             <li>News</li>
         </a>
         <a href="contacts.php">
@@ -51,22 +88,35 @@ if (!isset($_SESSION['user']))
     <div id="content">
         <div id="sf">
             <center>
-                <div class="heading ask">
-                    <h1 class="logo">
-                        <div id="i">
-                            <G /div>
-                                <div id="cir">G</div>
-                                <div id="ntro">USIM News Forum</div>
-                    </h1>
-                    <p id="tag-line">where technical questions are themselves the answers given by the users.</p>
+                <!-- Categories as cards or list -->
+                <div id="category-cards">
+                    <?php
+                    // Fetch categories with descriptions and image URLs from the database
+                    $cat_query = "SELECT name, description, image_url FROM category";
+                    $cat_result = mysqli_query($conn, $cat_query);
+
+                    // Generate the category cards dynamically
+                    while ($cat_row = mysqli_fetch_assoc($cat_result)) {
+                        $category_name = $cat_row['name'];
+                        $category_description = $cat_row['description'];
+                        $category_image_url = $cat_row['image_url'];
+
+                        // Display each category as a card
+                        echo '<div class="category-card" style="background-image: url(' . $category_image_url . ');">
+                              <div class="category-content">
+                                  <h3>' . $category_name . '</h3>
+                              </div>
+                          </div>';
+                    }
+                    ?>
                 </div>
 
                 <!-- ... -->
                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-                    <input name="question" type="text" title="Your Question..." placeholder="Ask Your question on our Community for great user experience..." id="question">
+                    <input name="question" type="text" title="Your Question..." placeholder="Ask something" id="question">
 
                     <select name="cat">
-                        <option value="Category">Category</option>
+                        <option value="Category">News</option>
                         <?php
                         // Fetch categories from the database
                         $cat_query = "SELECT name FROM category";
@@ -79,7 +129,7 @@ if (!isset($_SESSION['user']))
                         }
                         ?>
                     </select>
-                    <input name="submit" type="submit" class="up-in" id="ask_submit">
+                    <input name="submit" type="submit" class="btn btn-success" id="ask_submit">
                 </form>
                 <!-- ... -->
 

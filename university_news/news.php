@@ -49,10 +49,10 @@ include('connect.php');
 <body id="_3">
   <!-- Navigation bar from provided header -->
   <ul id="nav-bar">
-    <a href="index.php">
+    <!-- <a href="index.php">
       <li>Home</li>
-    </a>
-    <a href="categories.php">
+    </a> -->
+    <a href="index.php">
       <li id="home">News</li>
       <a href="contacts.php">
         <li>Contact</li>
@@ -66,9 +66,7 @@ include('connect.php');
         <a href="login.php">
           <li>Log In</li>
         </a>
-        <a href="signup.php">
-          <li>Sign Up</li>
-        </a>
+
       <?php
       } else {
       ?>
@@ -94,7 +92,8 @@ include('connect.php');
           <th>ID</th>
           <th>Name</th>
           <th>Description</th>
-          <th>Image URL</th> <!-- Added Image URL Column -->
+          <th>Image URL</th>
+          <th>Actions</th> <!-- Added Actions Column -->
         </tr>
       </thead>
       <tbody>
@@ -107,16 +106,24 @@ include('connect.php');
         if ($result) {
           // Fetch each row and output table data
           while ($row = mysqli_fetch_assoc($result)) {
+            $id = htmlspecialchars($row['id']); // Sanitize the ID for safe output
             echo "<tr>";
-            echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+            echo "<td>" . $id . "</td>";
             echo "<td>" . htmlspecialchars($row['name']) . "</td>";
             echo "<td>" . htmlspecialchars($row['description']) . "</td>";
-            // Make sure your database has an 'image_url' column or adjust as necessary
             echo "<td><img src='" . htmlspecialchars($row['image_url']) . "' alt='News Image' height='50'></td>";
+
+            // Edit and Delete buttons
+            echo "<td>";
+            // The edit_news.php and delete_news.php scripts need to be created to handle these actions
+            echo "<a href='edit_news.php?id=" . $id . "' class='btn btn-secondary btn-sm'>Edit</a> ";
+            echo "<a href='delete_news.php?id=" . $id . "' class='btn btn-danger btn-sm' onclick='return confirm(\"Are you sure you want to delete this news item?\")'>Delete</a>";
+            echo "</td>";
+
             echo "</tr>";
           }
         } else {
-          echo "<tr><td colspan='4'>No news found.</td></tr>";
+          echo "<tr><td colspan='5'>No news found.</td></tr>";
         }
         ?>
       </tbody>
